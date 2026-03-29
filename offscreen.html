@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Monitor Offscreen</title>
+</head>
+<body>
+  <!-- Used strictly for playing audio when service worker triggers notifications -->
+  <audio id="alertAudio" src="../sounds/alert.mp3"></audio>
+  <script>
+    const audio = document.getElementById('alertAudio');
+    
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      if (msg.action === 'playSound') {
+        audio.currentTime = 0;
+        audio.play().catch(err => console.error('Audio playback failed:', err));
+        sendResponse({ playing: true });
+        return true;
+      }
+    });
+
+    // Auto-close after inactivity to free resources
+    let timeout;
+    function resetTimer() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => window.close(), 60000); // 1 minute
+    }
+    
+    audio.onplay = resetTimer;
+    resetTimer();
+  </script>
+</body>
+</html>

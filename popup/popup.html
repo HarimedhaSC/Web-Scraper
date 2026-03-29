@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Monitor</title>
+  <link rel="stylesheet" href="popup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="pulse-dot"></div>
+        <h1>Stock Monitor</h1>
+      </div>
+      <button id="settingsBtn" class="icon-btn" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+    </header>
+
+    <!-- Main View -->
+    <main id="mainView">
+      <div class="add-section">
+        <button id="addCurrentPageBtn" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Current Page
+        </button>
+        <button id="showFormBtn" class="btn btn-secondary">Manual Add</button>
+      </div>
+
+      <!-- Add Product Form (Hidden by default) -->
+      <div id="addForm" class="glass-card form-container hidden">
+        <h3>Add New Product</h3>
+        <form id="newProductForm">
+          <div class="form-group">
+            <label for="url">Product URL</label>
+            <input type="url" id="url" required placeholder="https://amazon.com/dp/...">
+          </div>
+          <div class="form-group">
+            <label for="title">Friendly Name (Optional)</label>
+            <input type="text" id="title" placeholder="e.g. PS5 Console">
+          </div>
+          <div class="form-group">
+            <label for="selector">CSS Selector (Optional)</label>
+            <div class="input-hint">Leave blank for auto-detection</div>
+            <input type="text" id="selector" placeholder="#availability .a-color-success">
+          </div>
+          <div class="form-group row">
+            <label for="interval">Check every:</label>
+            <select id="interval">
+              <option value="15">15 seconds</option>
+              <option value="30">30 seconds</option>
+              <option value="60" selected>1 minute</option>
+              <option value="300">5 minutes</option>
+              <option value="900">15 minutes</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="cancelAddBtn" class="btn btn-text">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Product List -->
+      <div class="products-header">
+        <h2>Monitoring <span id="productCount">(0)</span></h2>
+      </div>
+      
+      <div id="productList" class="product-list">
+        <!-- Products injected via JS -->
+        <div class="empty-state">
+          <p>No products added yet.</p>
+          <p class="sub-text">Click 'Add Current Page' on any product page.</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Settings View (Hidden by default) -->
+    <main id="settingsView" class="hidden">
+      <div class="view-header">
+        <button id="backBtn" class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <h2>Settings</h2>
+      </div>
+      
+      <div class="glass-card settings-container">
+        <div class="setting-item">
+          <div class="setting-info">
+            <label>Chrome Notifications</label>
+            <span class="sub-text">Show OS-level alerts</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="settingNotif" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <label>Sound Alerts</label>
+            <span class="sub-text">Play when item is in stock</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="settingSound" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- HTML Template for Product Item -->
+  <template id="productTemplate">
+    <div class="product-item glass-card" data-id="">
+      <div class="product-header">
+        <div class="product-title-wrap">
+          <h3 class="product-title">Product Name</h3>
+          <span class="product-domain">domain.com</span>
+        </div>
+        <label class="toggle small">
+          <input type="checkbox" class="product-toggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      
+      <div class="product-status-row">
+        <div class="status-badge unknown">
+          <div class="status-dot"></div>
+          <span class="status-text">Pending</span>
+        </div>
+        <span class="last-checked">Never checked</span>
+      </div>
+
+      <div class="product-actions">
+        <button class="btn-icon btn-test" title="Force Check Now">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.28l5.67-5.67"/></svg>
+        </button>
+        <button class="btn-icon btn-link" title="Open Page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+        </button>
+        <button class="btn-icon btn-delete" title="Delete">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>
+  </template>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

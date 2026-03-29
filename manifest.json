@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Stock Monitor",
+  "version": "1.0.0",
+  "description": "Monitor product pages for stock availability changes and get instant notifications when items come back in stock.",
+  "permissions": [
+    "storage",
+    "notifications",
+    "alarms",
+    "activeTab",
+    "scripting",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "Stock Monitor"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [],
+  "web_accessible_resources": [
+    {
+      "resources": ["sounds/alert.mp3"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
