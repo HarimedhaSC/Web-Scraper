@@ -90,9 +90,9 @@ export function addJitter(intervalSeconds) {
 }
 
 /**
- * Minimum safe polling interval (seconds)
+ * Minimum safe polling interval (seconds) — Chrome alarms API enforces 1 minute minimum
  */
-export const MIN_INTERVAL = 10;
+export const MIN_INTERVAL = 60;
 
 /**
  * Recommended default interval (seconds)

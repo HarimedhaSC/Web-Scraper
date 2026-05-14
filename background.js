@@ -11,6 +11,43 @@ import {
 // Setup click listeners for Chrome notifications
 setupNotificationListeners();
 
+// ─── Concurrency Queue ─────────────────────────────────────────
+let activeChecks = 0;
+const checkQueue = [];
+
+/**
+ * Wrap a productId check in the concurrency queue.
+ * Resolves when the check eventually runs and completes.
+ * @param {string} productId
+ * @returns {Promise<void>}
+ */
+function enqueueCheck(productId) {
+  return new Promise((resolve, reject) => {
+    checkQueue.push({ productId, resolve, reject });
+    processQueue();
+  });
+}
+
+/**
+ * Drain the queue up to maxConcurrentChecks slots.
+ */
+async function processQueue() {
+  const settings = await getSettings();
+  const maxConcurrent = settings.maxConcurrentChecks ?? 3;
+
+  while (checkQueue.length > 0 && activeChecks < maxConcurrent) {
+    const { productId, resolve, reject } = checkQueue.shift();
+    activeChecks++;
+    checkProductStatus(productId)
+      .then(resolve)
+      .catch(reject)
+      .finally(() => {
+        activeChecks--;
+        processQueue();
+      });
+  }
+}
+
 /**
  * Handle extension installation / update
  */
@@ -62,7 +99,7 @@ function createAlarm(product) {
   const intervalMinutes = product.interval / 60;
   
   // Add some jitter to the initial delay to avoid thundering herd
-  const initialDelayMintues = Math.max((addJitter(product.interval) / 60), 0.1);
+  const initialDelayMintues = Math.max((addJitter(product.interval) / 60), 1);
 
   chrome.alarms.create(`check-${product.id}`, {
     delayInMinutes: initialDelayMintues,
@@ -76,7 +113,7 @@ function createAlarm(product) {
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name.startsWith('check-')) {
     const productId = alarm.name.replace('check-', '');
-    await checkProductStatus(productId);
+    await enqueueCheck(productId);
   }
 });
 
@@ -154,7 +191,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   
   if (request.action === 'forceCheck') {
     // Triggered manually from popup
-    checkProductStatus(request.productId)
+    enqueueCheck(request.productId)
       .then(() => sendResponse({ success: true }))
       .catch(err => sendResponse({ success: false, error: err.message }));
     return true; // Keep channel open for async response
@@ -165,7 +202,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     registerAllAlarms();
     // If new product added, do an immediate check
     if (request.action === 'productAdded' && request.product && request.product.id) {
-       checkProductStatus(request.product.id);
+       enqueueCheck(request.product.id);
     }
     sendResponse({ success: true });
     return false;
@@ -178,6 +215,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return false;
   }
   
+  if (request.action === 'closeOffscreen') {
+    chrome.offscreen.closeDocument().catch(() => {});
+    sendResponse({ success: true });
+    return false;
+  }
+
   if (request.action === 'playSound') {
     // Message normally routed to offscreen document
     // If background gets it, return true to let others handle

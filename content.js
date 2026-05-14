@@ -18,7 +18,6 @@
       action: 'pageDataExtracted',
       url: window.location.href,
       title: document.title.split(' - ')[0].split(' | ')[0].trim(), // Clean up title slightly
-      html: document.body.innerHTML // Send body HTML for preview detection if needed
     };
     
     try {

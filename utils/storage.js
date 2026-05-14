@@ -7,7 +7,7 @@ const DEFAULT_SETTINGS = {
   soundEnabled: true,
   notificationsEnabled: true,
   maxConcurrentChecks: 3,
-  minInterval: 10,           // minimum allowed interval in seconds
+  minInterval: 60,           // minimum allowed interval in seconds (Chrome alarms API enforces 1 min minimum)
 };
 
 /**
